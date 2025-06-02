@@ -6,11 +6,12 @@ import '../news_detail_page.dart';
 class MainNewsHorizontalList extends StatelessWidget {
   final String sectionTitle;
   final List<News> newsList;
-  const MainNewsHorizontalList({super.key, required this.sectionTitle, required this.newsList});
+  final bool? dark;
+  const MainNewsHorizontalList({super.key, required this.sectionTitle, required this.newsList, this.dark});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = dark ?? Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

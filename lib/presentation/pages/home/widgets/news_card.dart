@@ -6,11 +6,12 @@ import '../../../../core/utils/dummy_data.dart';
 class NewsCard extends StatelessWidget {
   final News news;
   final VoidCallback? onTap;
-  const NewsCard({super.key, required this.news, this.onTap});
+  final bool? dark;
+  const NewsCard({super.key, required this.news, this.onTap, this.dark});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = dark ?? Theme.of(context).brightness == Brightness.dark;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),

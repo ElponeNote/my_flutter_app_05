@@ -10,21 +10,21 @@ class NewsDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: const Color(0xFF101014),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF101014),
         elevation: 0.5,
         title: Text(
           '뉴스',
           style: GoogleFonts.playfairDisplay(
             textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ) ?? const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                ) ?? const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -34,8 +34,8 @@ class NewsDetailPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12.withAlpha((0.08 * 255).toInt()),
-                  blurRadius: 16,
+                  color: Colors.black.withAlpha((0.18 * 255).toInt()),
+                  blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
               ],
@@ -49,8 +49,8 @@ class NewsDetailPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 240,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.error),
+                  color: Colors.grey[900],
+                  child: const Icon(Icons.error, color: Colors.white),
                 ),
               ),
             ),
@@ -61,8 +61,8 @@ class NewsDetailPage extends StatelessWidget {
             style: GoogleFonts.playfairDisplay(
               textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ) ?? const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                  ) ?? const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -71,10 +71,10 @@ class NewsDetailPage extends StatelessWidget {
           Text(
             news.summary,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[900],
+                  color: Colors.grey[300],
                   height: 1.7,
                   fontSize: 18,
-                ) ?? const TextStyle(fontSize: 18),
+                ) ?? const TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 32),
           Row(
@@ -82,15 +82,15 @@ class NewsDetailPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Colors.blue[700]?.withAlpha(180),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   news.category.name,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[700],
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
-                      ) ?? const TextStyle(fontSize: 14),
+                      ) ?? const TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ),
             ],

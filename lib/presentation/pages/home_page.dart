@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/utils/dummy_data.dart';
+import '../../core/utils/dummy_data.dart' as dummy;
+import '../../data/models/news.dart';
+import '../../data/repositories/news_repository_impl.dart';
 import 'home/news_detail_page.dart';
 import 'home/widgets/news_card.dart';
 import 'home/widgets/search_bar_widget.dart';
@@ -23,7 +25,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   bool _searchActive = false;
   final FocusNode _searchFocusNode = FocusNode();
   final TextEditingController _searchController = TextEditingController();
-  List<News> _searchResults = [];
+  List<dummy.News> _searchResults = [];
   List<String> _recentSearches = [];
 
   @override
@@ -46,7 +48,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       return;
     }
     setState(() {
-      _searchResults = dummyNewsList.where((news) {
+      _searchResults = dummy.dummyNewsList.where((news) {
         return news.title.toLowerCase().contains(query) ||
                news.summary.toLowerCase().contains(query) ||
                news.category.name.toLowerCase().contains(query);
@@ -68,7 +70,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   void _activateSearch() {
     setState(() => _searchActive = true);
-    // 애니메이션이 시작된 후 포커스 요청
     Future.delayed(const Duration(milliseconds: 350), () {
       if (mounted) _searchFocusNode.requestFocus();
     });
@@ -80,7 +81,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       _searchResults = [];
     });
     _searchController.clear();
-    // 애니메이션이 끝난 후 포커스 해제
     Future.delayed(const Duration(milliseconds: 350), () {
       if (mounted) _searchFocusNode.unfocus();
     });
@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
   }
 
-  Widget buildSection(String title, List<News> newsList) {
+  Widget buildSection(String title, List<dummy.News> newsList) {
     if (newsList.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,12 +124,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    // 카테고리별로 뉴스 분류
-    final mainNews = dummyNewsList.where((n) => n.category == NewsCategory.main).toList();
-    final economyNews = dummyNewsList.where((n) => n.category == NewsCategory.economy).toList();
-    final sportsNews = dummyNewsList.where((n) => n.category == NewsCategory.sports).toList();
-    final techNews = dummyNewsList.where((n) => n.category == NewsCategory.tech).toList();
-    final entertainmentNews = dummyNewsList.where((n) => n.category == NewsCategory.entertainment).toList();
+    final mainNews = dummy.dummyNewsList.where((n) => n.category.name == 'main').toList();
+    final economyNews = dummy.dummyNewsList.where((n) => n.category.name == 'economy').toList();
+    final sportsNews = dummy.dummyNewsList.where((n) => n.category.name == 'sports').toList();
+    final techNews = dummy.dummyNewsList.where((n) => n.category.name == 'tech').toList();
+    final entertainmentNews = dummy.dummyNewsList.where((n) => n.category.name == 'entertainment').toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -149,122 +148,136 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ListView(
             children: [
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: AnimatedAlign(
-                  alignment: _searchActive ? Alignment.topCenter : Alignment.topLeft,
-                  duration: const Duration(milliseconds: 420),
-                  curve: Curves.easeOutBack,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 420),
-                    curve: Curves.easeOutBack,
-                    width: _searchActive ? MediaQuery.of(context).size.width * 0.92 : MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: _searchActive ? 0 : 0),
-                    child: _searchActive
-                        ? Material(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            elevation: 4,
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 12),
-                                const Icon(Icons.search, color: Colors.grey),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _searchController,
-                                    focusNode: _searchFocusNode,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: '무엇을 찾고 계신가요?',
-                                    ),
-                                    style: Theme.of(context).textTheme.bodyLarge,
-                                    onSubmitted: _onSearchSubmitted,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: _deactivateSearch,
-                                ),
-                              ],
-                            ),
-                          )
-                        : SearchBarWidget(onTap: _activateSearch),
+              Center(
+                child: Container(
+                  constraints: const BoxConstraints(
+                    maxWidth: 600,
+                    minWidth: 0,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildSearchBar(expanded: true, dark: true),
+                        const SizedBox(height: 18),
+                        if (!_searchActive) ...[
+                          HorizontalNewsList(
+                            sectionTitle: 'AI 추천 뉴스',
+                            newsList: aiRecommendedNewsList,
+                          ),
+                          MainNewsHorizontalList(
+                            sectionTitle: '주요 뉴스',
+                            newsList: mainNews,
+                          ),
+                          buildSection('경제', economyNews),
+                          buildSection('스포츠', sportsNews),
+                          buildSection('기술', techNews),
+                          buildSection('엔터테인먼트', entertainmentNews),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text('실시간 뉴스', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          ),
+                          FutureBuilder<List<News>>(
+                            future: NewsRepositoryImpl().fetchNews(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('에러 발생: \\${snapshot.error}'));
+                              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return const Center(child: Text('뉴스가 없습니다'));
+                              }
+                              final newsList = snapshot.data!;
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: newsList.length,
+                                itemBuilder: (context, index) {
+                                  final news = newsList[index];
+                                  return ListTile(
+                                    title: Text(news.title),
+                                    subtitle: Text(news.description),
+                                    leading: news.urlToImage.isNotEmpty
+                                        ? Image.network(news.urlToImage, width: 80, fit: BoxFit.cover)
+                                        : null,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => NewsDetailPage(news: news),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                        if (_searchActive)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: _searchController.text.isEmpty
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (_recentSearches.isNotEmpty) ...[
+                                        const Text('최근 검색어', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: _recentSearches
+                                              .map((keyword) => ActionChip(
+                                                    label: Text(keyword),
+                                                    onPressed: () => _searchByKeyword(keyword),
+                                                  ))
+                                              .toList(),
+                                        ),
+                                        const SizedBox(height: 20),
+                                      ],
+                                      const Text('추천 검색어', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: _suggestedKeywords
+                                            .map((keyword) => ActionChip(
+                                                  label: Text(keyword),
+                                                  onPressed: () => _searchByKeyword(keyword),
+                                                ))
+                                            .toList(),
+                                      ),
+                                    ],
+                                  )
+                                : _searchResults.isEmpty
+                                    ? const Text(
+                                        '검색 결과가 없습니다.',
+                                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                                      )
+                                    : Column(
+                                        children: _searchResults
+                                            .map((news) => NewsCard(
+                                                  news: news,
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) => NewsDetailPage(news: news),
+                                                      ),
+                                                    );
+                                                  },
+                                                ))
+                                            .toList(),
+                                      ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              if (!_searchActive) ...[
-                const SizedBox(height: 8),
-                HorizontalNewsList(
-                  sectionTitle: 'AI 추천 뉴스',
-                  newsList: aiRecommendedNewsList,
-                ),
-                MainNewsHorizontalList(
-                  sectionTitle: '주요 뉴스',
-                  newsList: mainNews,
-                ),
-                buildSection('경제', economyNews),
-                buildSection('스포츠', sportsNews),
-                buildSection('기술', techNews),
-                buildSection('엔터테인먼트', entertainmentNews),
-              ],
-              if (_searchActive)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: _searchController.text.isEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_recentSearches.isNotEmpty) ...[
-                              const Text('최근 검색어', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _recentSearches
-                                    .map((keyword) => ActionChip(
-                                          label: Text(keyword),
-                                          onPressed: () => _searchByKeyword(keyword),
-                                        ))
-                                    .toList(),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                            const Text('추천 검색어', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _suggestedKeywords
-                                  .map((keyword) => ActionChip(
-                                        label: Text(keyword),
-                                        onPressed: () => _searchByKeyword(keyword),
-                                      ))
-                                  .toList(),
-                            ),
-                          ],
-                        )
-                      : _searchResults.isEmpty
-                          ? const Text(
-                              '검색 결과가 없습니다.',
-                              style: TextStyle(color: Colors.grey, fontSize: 16),
-                            )
-                          : Column(
-                              children: _searchResults
-                                  .map((news) => NewsCard(
-                                        news: news,
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => NewsDetailPage(news: news),
-                                            ),
-                                          );
-                                        },
-                                      ))
-                                  .toList(),
-                            ),
-                ),
             ],
           ),
           if (_searchActive)
@@ -288,4 +301,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-} 
+
+  Widget _buildSearchBar({bool expanded = false, bool dark = false}) {
+    return AnimatedAlign(
+      alignment: _searchActive ? Alignment.topCenter : Alignment.topLeft,
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutBack,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 420),
+        curve: Curves.easeOutBack,
+        width: _searchActive ? MediaQuery.of(context).size.width * 0.92 : MediaQuery.of(context).size.width,
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        child: _searchActive
+            ? Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                elevation: 4,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 12),
+                    const Icon(Icons.search, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '무엇을 찾고 계신가요?',
+                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        onSubmitted: _onSearchSubmitted,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: _deactivateSearch,
+                    ),
+                  ],
+                ),
+              )
+            : SearchBarWidget(onTap: _activateSearch),
+      ),
+    );
+  }
+}

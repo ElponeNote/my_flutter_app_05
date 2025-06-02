@@ -13,7 +13,22 @@ class App extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF7F8FA),
+        cardColor: Colors.white,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF101014),
+        cardColor: const Color(0xFF23242A),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: const Color(0xFF18191C),
+          selectedItemColor: Colors.blue[300],
+          unselectedItemColor: Colors.grey[500],
+        ),
+      ),
+      themeMode: ThemeMode.dark,
       home: const MainTabScaffold(),
     );
   }

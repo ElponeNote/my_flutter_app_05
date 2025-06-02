@@ -20,7 +20,7 @@ class _WeatherPageState extends State<WeatherPage> {
   final IconData weatherIcon = CupertinoIcons.sun_max_fill;
 
   final List<Map<String, dynamic>> hourly = List.generate(24, (i) => {
-    'hour': i == 0 ? '지금' : '${i}시',
+    'hour': i == 0 ? '지금' : '$i시',
     'icon': i < 6 || i > 19 ? CupertinoIcons.moon_stars_fill : CupertinoIcons.sun_max_fill,
     'temp': 20 + (i % 6),
   });
@@ -37,8 +37,6 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isDark = true;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -124,7 +122,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                         child: Container(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withAlpha((0.08 * 255).toInt()),
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
                           child: SizedBox(
                             height: 110,
@@ -140,11 +138,11 @@ class _WeatherPageState extends State<WeatherPage> {
                                   curve: Curves.ease,
                                   width: 64,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.13),
+                                    color: Colors.white.withAlpha((0.13 * 255).toInt()),
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.08),
+                                        color: Colors.black.withAlpha((0.08 * 255).toInt()),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
@@ -190,7 +188,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
                         child: Container(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withAlpha((0.08 * 255).toInt()),
                           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                           child: Column(
                             children: weekly.map((w) {

@@ -133,14 +133,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       create: (_) => NewsBloc(getNewsUseCase: GetNewsUseCase())..add(LoadNews()),
       child: Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: Text(
-              '뉴스 피드',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 26,
-                  ),
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '뉴스 피드',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'www.skoolkorea.com',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+              ),
+            ],
           ),
           centerTitle: true,
         ),
@@ -154,7 +166,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 children: [
                   ListView(
                     children: [
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 13),
                       Center(
                         child: Container(
                           constraints: const BoxConstraints(
@@ -167,7 +179,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _buildSearchBar(expanded: true, dark: true),
+                                _buildSearchBar(expanded: true),
                                 const SizedBox(height: 18),
                                 if (!_searchActive) ...[
                                   HorizontalNewsList(
@@ -192,7 +204,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                       if (snapshot.connectionState == ConnectionState.waiting) {
                                         return const Center(child: CircularProgressIndicator());
                                       } else if (snapshot.hasError) {
-                                        return Center(child: Text('에러 발생: ${snapshot.error}'));
+                                        return Center(child: Text('에러 발생: [36m${snapshot.error}[0m'));
                                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                                         return const Center(child: Text('뉴스가 없습니다'));
                                       }
@@ -203,12 +215,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                         itemCount: newsList.length,
                                         itemBuilder: (context, index) {
                                           final news = newsList[index];
-                                          return ListTile(
-                                            title: Text(news.title),
-                                            subtitle: Text(news.description),
-                                            leading: news.urlToImage.isNotEmpty
-                                                ? Image.network(news.urlToImage, width: 80, fit: BoxFit.cover)
-                                                : null,
+                                          return NewsCard(
+                                            news: news,
                                             onTap: () {
                                               Navigator.push(
                                                 context,
@@ -316,7 +324,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildSearchBar({bool expanded = false, bool dark = false}) {
+  Widget _buildSearchBar({bool expanded = false}) {
     return AnimatedAlign(
       alignment: _searchActive ? Alignment.topCenter : Alignment.topLeft,
       duration: const Duration(milliseconds: 420),

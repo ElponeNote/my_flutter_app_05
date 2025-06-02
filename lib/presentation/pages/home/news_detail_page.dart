@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/utils/dummy_data.dart' as dummy;
-import '../../../data/models/news.dart' as model;
 
 class NewsDetailPage extends StatelessWidget {
   final dynamic news;
@@ -9,102 +7,72 @@ class NewsDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if this is dummy.News or model.News
-    final isDummy = news is dummy.News;
-    final title = isDummy ? news.title : news.title;
+    // 타입 분기: 더미 데이터는 imageUrl/summary, API 데이터는 urlToImage/description
+    final isDummy = news.runtimeType.toString().contains('News') && news.imageUrl != null;
+    final title = news.title;
     final summary = isDummy ? news.summary : news.description;
     final imageUrl = isDummy ? news.imageUrl : news.urlToImage;
-    final source = isDummy ? news.source : news.source;
-    final timeAgo = isDummy ? news.timeAgo : news.publishedAt;
+    final source = news.source;
+    final publishedAt = isDummy ? news.timeAgo : news.publishedAt;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101014),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF101014),
-        elevation: 0.5,
-        title: Text(
-          '뉴스',
-          style: GoogleFonts.playfairDisplay(
-            textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ) ?? const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+      appBar: AppBar(title: Text(source ?? '뉴스')),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha((0.18 * 255).toInt()),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Image.network(
-                imageUrl,
-                height: 240,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+          if (imageUrl != null && imageUrl.isNotEmpty)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.18 * 255).toInt()),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.network(
+                  imageUrl,
                   height: 240,
-                  color: Colors.grey[900],
-                  child: const Icon(Icons.error, color: Colors.white),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 240,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
-          ),
           const SizedBox(height: 36),
           Text(
             title,
             style: GoogleFonts.playfairDisplay(
-              textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ) ?? const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+              textStyle: Theme.of(context).textTheme.headlineSmall,
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
             ),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 24),
           Text(
-            summary,
+            summary ?? '',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[300],
+                  color: Colors.grey[800],
                   height: 1.7,
                   fontSize: 18,
-                ) ?? const TextStyle(fontSize: 18, color: Colors.grey),
+                ),
           ),
           const SizedBox(height: 32),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.blue[700]?.withAlpha(180),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  source,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ) ?? const TextStyle(fontSize: 14, color: Colors.white),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                timeAgo,
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
+              Text(source ?? '', style: TextStyle(color: Colors.grey[600], fontSize: 15)),
+              Text(publishedAt ?? '', style: TextStyle(color: Colors.grey[500], fontSize: 15)),
             ],
           ),
         ],

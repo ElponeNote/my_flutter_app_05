@@ -1,86 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/utils/dummy_data.dart';
 
 class NewsCard extends StatelessWidget {
-  final News news;
+  final dynamic news;
   final VoidCallback? onTap;
-  final bool? dark;
-  const NewsCard({super.key, required this.news, this.onTap, this.dark});
+
+  const NewsCard({super.key, required this.news, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = dark ?? Theme.of(context).brightness == Brightness.dark;
+    // 타입 분기: 더미 데이터는 imageUrl/summary, API 데이터는 urlToImage/description
+    final isDummy = news.runtimeType.toString().contains('News') && news.imageUrl != null;
+    final title = news.title;
+    final summary = isDummy ? news.summary : news.description;
+    final imageUrl = isDummy ? news.imageUrl : news.urlToImage;
+    final source = news.source;
+    final publishedAt = isDummy ? news.timeAgo : news.publishedAt;
+
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      margin: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       elevation: 6,
-      shadowColor: isDark ? Colors.black54 : Colors.black12,
-      color: isDark ? const Color(0xFF23242A) : Colors.white,
+      shadowColor: Colors.black12,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 이미지 (상단만 라운드)
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-              child: CachedNetworkImage(
-                imageUrl: news.imageUrl,
-                height: 190,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+            if (imageUrl != null && imageUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
                   height: 190,
-                  color: isDark ? Colors.grey[800] : Colors.grey[200],
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 190,
-                  color: isDark ? Colors.grey[900] : Colors.grey[300],
-                  child: const Icon(Icons.error),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 190,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                  ),
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return Container(
+                      height: 190,
+                      color: Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  },
                 ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 타이틀
                   Text(
-                    news.title,
+                    title,
                     style: GoogleFonts.playfairDisplay(
-                      textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black,
-                            fontSize: 22,
-                          ) ??
-                          TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
+                      textStyle: Theme.of(context).textTheme.titleMedium,
+                      fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
-                  // 요약
                   Text(
-                    news.summary,
+                    summary ?? '',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDark ? Colors.grey[300] : Colors.grey[800],
+                          color: Colors.grey[800],
                           height: 1.6,
                           fontSize: 15,
-                        ) ??
-                        TextStyle(
-                          fontSize: 15,
-                          color: isDark ? Colors.grey[300] : Colors.grey[800],
                         ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(source ?? '', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                      Text(publishedAt ?? '', style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                    ],
                   ),
                 ],
               ),

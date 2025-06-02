@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/pages/weather/weather_page.dart';
-import 'presentation/pages/profile/profile_page.dart';
+import 'presentation/pages/my_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -46,7 +46,7 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
   final List<Widget> _pages = const [
     HomePage(),
     WeatherPage(),
-    ProfilePage(),
+    MyPage(),
   ];
 
   @override

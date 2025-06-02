@@ -41,18 +41,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  Widget _buildSearchBar({bool expanded = false, bool dark = false}) {
+  Widget _buildSearchBar({bool expanded = false}) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
       width: expanded ? MediaQuery.of(context).size.width * 0.92 : double.infinity,
       height: 54,
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF23242A) : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: dark ? Colors.black54 : Colors.black12,
+            color: Colors.black12,
             blurRadius: 16,
             offset: Offset(0, 4),
           ),
@@ -63,12 +63,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         focusNode: _searchFocusNode,
         decoration: InputDecoration(
           hintText: '검색',
-          hintStyle: TextStyle(color: dark ? Colors.grey[400] : Colors.grey),
-          prefixIcon: Icon(Icons.search, color: dark ? Colors.grey[300] : Colors.grey),
+          hintStyle: const TextStyle(color: Colors.grey),
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
         ),
-        style: TextStyle(color: dark ? Colors.white : Colors.black),
+        style: const TextStyle(color: Colors.black),
         onChanged: (value) {
           context.read<SearchBloc>().add(SearchQueryChanged(value));
         },
@@ -85,15 +85,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildKeywordTags(List<String> keywords, {void Function(String)? onTap, bool dark = false}) {
+  Widget _buildKeywordTags(List<String> keywords, {void Function(String)? onTap}) {
     return Wrap(
       spacing: 8,
       children: keywords.map((keyword) {
         return ActionChip(
           label: Text(keyword),
           onPressed: onTap != null ? () => onTap(keyword) : null,
-          backgroundColor: dark ? const Color(0xFF23242A) : Colors.grey[200],
-          labelStyle: TextStyle(color: dark ? Colors.white : Colors.black),
+          backgroundColor: Colors.grey[200],
+          labelStyle: const TextStyle(color: Colors.black),
         );
       }).toList(),
     );
@@ -141,24 +141,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   // 플레이스홀더 검색창 (SearchBarWidget)
                   SearchBarWidget(
                     onTap: () => _searchFocusNode.requestFocus(),
-                    dark: true,
                   ),
                   const SizedBox(height: 32),
                   const SizedBox(height: 8),
                   MainNewsHorizontalList(
                     sectionTitle: '주요 뉴스',
                     newsList: mainNews,
-                    dark: true,
                   ),
                   HorizontalNewsList(
                     sectionTitle: 'AI 추천 뉴스',
                     newsList: mainNews, // 실제 AI 추천 리스트로 교체 필요
-                    dark: true,
                   ),
-                  buildSection('경제', economyNews, dark: true),
-                  buildSection('스포츠', sportsNews, dark: true),
-                  buildSection('기술', techNews, dark: true),
-                  buildSection('엔터테인먼트', entertainmentNews, dark: true),
+                  buildSection('경제', economyNews),
+                  buildSection('스포츠', sportsNews),
+                  buildSection('기술', techNews),
+                  buildSection('엔터테인먼트', entertainmentNews),
                 ],
               ),
             // 2. 검색 활성화 시: 오버레이 + Center(검색창, 키워드, BlocBuilder)
@@ -188,7 +185,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildSearchBar(expanded: true, dark: true),
+                      _buildSearchBar(expanded: true),
                       const SizedBox(height: 18),
                       if (recentKeywords.isNotEmpty) ...[
                         Align(
@@ -200,7 +197,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           _searchController.text = kw;
                           context.read<SearchBloc>().add(SearchQueryChanged(kw));
                           _searchFocusNode.unfocus();
-                        }, dark: true),
+                        }),
                         const SizedBox(height: 18),
                       ],
                       Align(
@@ -212,7 +209,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         _searchController.text = kw;
                         context.read<SearchBloc>().add(SearchQueryChanged(kw));
                         _searchFocusNode.unfocus();
-                      }, dark: true),
+                      }),
                       const SizedBox(height: 24),
                       // 검색 결과 리스트
                       SizedBox(
@@ -227,7 +224,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               return ListView(
                                 children: state.results.map((news) => NewsCard(
                                   news: news,
-                                  dark: true,
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -270,7 +266,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget buildSection(String title, List<News> newsList, {bool dark = false}) {
+  Widget buildSection(String title, List<News> newsList) {
     if (newsList.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +283,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         ...newsList.map((news) => NewsCard(
               news: news,
-              dark: true,
               onTap: () {
                 Navigator.push(
                   context,

@@ -5,10 +5,10 @@
 
 - [x] Phase 1: Core Structure (1-2주)
   - [x] 프로젝트 설정 및 의존성 추가 (완료)
-  - [ ] Clean Architecture 구조 설정
-  - [ ] BLoC 패턴 구현 기반
+  - [x] Clean Architecture 구조 설정 및 폴더/파일 생성 (완료)
+  - [x] BLoC 패턴 구현 기반 (완료)
 - [ ] Phase 2: UI Implementation (2-3주)
-  - [ ] 홈 피드 화면 구현
+  - [x] 홈 피드 화면 구현 (카드형/섹션/이미지 포함, 완료)
   - [ ] 검색 기능 구현
   - [ ] 탭 네비게이션 구현
 - [ ] Phase 3: API Integration (1-2주)

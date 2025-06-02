@@ -26,9 +26,8 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         emit(NewsLoaded(_allNews));
       } else {
         final results = _allNews.where((news) =>
-          news != null &&
-          (news.title.toLowerCase().contains(query) ||
-          (news.description?.toLowerCase().contains(query) ?? false))
+          news.title.toLowerCase().contains(query) ||
+          news.description.toLowerCase().contains(query)
         ).toList();
         emit(NewsSearchResult(results));
       }

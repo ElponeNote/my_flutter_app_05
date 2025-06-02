@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -80,6 +82,34 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  Widget _buildProfileImage({String? path, double radius = 32}) {
+    if (path != null && path.isNotEmpty) {
+      final file = File(path);
+      if (file.existsSync()) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundImage: FileImage(file),
+        );
+      }
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundImage: const NetworkImage('https://i.pravatar.cc/150?img=3'),
+    );
+  }
+
+  Future<String?> _pickAndSaveProfileImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'profile_image.jpg';
+      final savedImage = await File(picked.path).copy('${appDir.path}/$fileName');
+      return savedImage.path;
+    }
+    return null;
+  }
+
   void _showEditProfileDialog() async {
     final nameController = TextEditingController(text: userName);
     final emailController = TextEditingController(text: userEmail);
@@ -108,22 +138,16 @@ class _MyPageState extends State<MyPage> {
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      CircleAvatar(
-                        radius: 44,
-                        backgroundImage: (tempPhotoPath != null && tempPhotoPath!.isNotEmpty)
-                            ? FileImage(File(tempPhotoPath!))
-                            : const NetworkImage('https://i.pravatar.cc/150?img=3') as ImageProvider,
-                      ),
+                      _buildProfileImage(path: tempPhotoPath, radius: 44),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: InkWell(
                           onTap: () async {
-                            final picker = ImagePicker();
-                            final picked = await picker.pickImage(source: ImageSource.gallery);
-                            if (picked != null) {
+                            final newPath = await _pickAndSaveProfileImage();
+                            if (newPath != null) {
                               setModalState(() {
-                                tempPhotoPath = picked.path;
+                                tempPhotoPath = newPath;
                               });
                             }
                           },
@@ -175,6 +199,7 @@ class _MyPageState extends State<MyPage> {
         );
       },
     );
+    if (!mounted) return;
   }
 
   @override
@@ -197,12 +222,7 @@ class _MyPageState extends State<MyPage> {
           // 프로필
           Row(
             children: [
-              CircleAvatar(
-                radius: 32,
-                backgroundImage: (userPhotoPath != null && userPhotoPath!.isNotEmpty)
-                    ? FileImage(File(userPhotoPath!))
-                    : const NetworkImage('https://i.pravatar.cc/150?img=3') as ImageProvider,
-              ),
+              _buildProfileImage(path: userPhotoPath, radius: 32),
               const SizedBox(width: 18),
               Expanded(
                 child: Column(

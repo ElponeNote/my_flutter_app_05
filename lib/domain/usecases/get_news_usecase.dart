@@ -1,5 +1,11 @@
+import '../../data/models/news.dart';
+import '../../data/repositories/news_repository_impl.dart';
+
 class GetNewsUseCase {
-  Future<void> call() async {
-    // TODO: 뉴스 데이터 가져오기 구현
+  final NewsRepositoryImpl _repository;
+  GetNewsUseCase({NewsRepositoryImpl? repository}) : _repository = repository ?? NewsRepositoryImpl();
+
+  Future<List<News>> call() async {
+    return await _repository.fetchNews();
   }
 } 

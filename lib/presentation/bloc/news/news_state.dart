@@ -1,4 +1,4 @@
-import '../../../core/utils/dummy_data.dart';
+import '../../../data/models/news.dart';
 
 abstract class NewsState {}
 

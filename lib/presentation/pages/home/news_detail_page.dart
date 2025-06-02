@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/utils/dummy_data.dart';
+import '../../../core/utils/dummy_data.dart' as dummy;
+import '../../../data/models/news.dart' as model;
 
 class NewsDetailPage extends StatelessWidget {
-  final News news;
-
+  final dynamic news;
   const NewsDetailPage({super.key, required this.news});
 
   @override
   Widget build(BuildContext context) {
+    // Determine if this is dummy.News or model.News
+    final isDummy = news is dummy.News;
+    final title = isDummy ? news.title : news.title;
+    final summary = isDummy ? news.summary : news.description;
+    final imageUrl = isDummy ? news.imageUrl : news.urlToImage;
+    final source = isDummy ? news.source : news.source;
+    final timeAgo = isDummy ? news.timeAgo : news.publishedAt;
     return Scaffold(
       backgroundColor: const Color(0xFF101014),
       appBar: AppBar(
@@ -43,7 +50,7 @@ class NewsDetailPage extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Image.network(
-                news.imageUrl,
+                imageUrl,
                 height: 240,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -57,7 +64,7 @@ class NewsDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 36),
           Text(
-            news.title,
+            title,
             style: GoogleFonts.playfairDisplay(
               textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -69,7 +76,7 @@ class NewsDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            news.summary,
+            summary,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.grey[300],
                   height: 1.7,
@@ -86,12 +93,17 @@ class NewsDetailPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  news.category.name,
+                  source,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ) ?? const TextStyle(fontSize: 14, color: Colors.white),
                 ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                timeAgo,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ],
           ),
